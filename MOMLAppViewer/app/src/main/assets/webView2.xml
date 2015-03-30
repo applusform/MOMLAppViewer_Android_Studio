@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MOML version="1.0.1">
+    <UI>
+		<UILAYOUT portrait="300,300" landscape="300,300" >
+			<WEBVIEW2 id="webView" layout="0,0,300,300" defaultImg="#ffffff" src="{userVariable.url}" controls="none"/>
+		</UILAYOUT>
+    </UI>
+</MOML>
