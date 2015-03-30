@@ -1,28 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-● developer version
-
- AndroidManifest.xml 은 AndroidManifest_basic.xml이나 AndroidManifest_dev.xml의 내용을 
-그대로 복사해서 사용하므로 직접 수정하지 않아야 함.  
-
-
-basic version 설정:
-1. package :  org.mospi.momlappviewer.basic
-2. icon : ic_launcher_basic
-3. MainActivity: import org.mospi.momlappviewer.basic.R;
-
-developer version 설정
-1. package :  org.mospi.momlappviewer
-2. icon : ic_launcher
-3. MainActivity: import org.mospi.momlappviewer.R;
--->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.mospi.momlappviewer"
     android:versionCode="30"
     android:versionName="1.70" >
 
-    <!-- for developer 전용 권한 -->
     <uses-permission
         android:name="android.permission.CAMERA"
         android:required="false" />
@@ -76,11 +58,9 @@ developer version 설정
         android:name="android.permission.SET_WALLPAPER"
         android:required="false" />
 
-    <!-- 필수 권한 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
  	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
  	 
-    <!-- 마켓에서 크게 신경쓰지 않는 권한 -->
     <uses-permission
         android:name="android.permission.INTERNET"
         android:required="false" />
