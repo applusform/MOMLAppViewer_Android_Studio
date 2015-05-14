@@ -8,8 +8,8 @@ android {
         applicationId "org.mospi.momlappviewer"
         minSdkVersion 10
         targetSdkVersion 21
-        versionCode 30
-        versionName "1.70"
+        versionCode 34
+        versionName "1.74"
     }
     buildTypes {
         release {

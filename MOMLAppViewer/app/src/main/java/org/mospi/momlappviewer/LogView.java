@@ -94,7 +94,7 @@ public class LogView extends FrameLayout {
 	float btnTextSize = 10;
 	float logTextSize = 9;
 
-    @SuppressWarnings("deprecation")
+	@SuppressWarnings("deprecation")
 	private Button createButton(String title) {
 		Button btn = new Button(getContext());
 		btn.setText(title);
@@ -110,8 +110,7 @@ public class LogView extends FrameLayout {
 		stateListDrawable.addState(new int[] { android.R.attr.state_pressed }, new ColorDrawable(Color.argb(0xe0, 0x00, 0x80, 0x00)));
 		stateListDrawable.addState(new int[] {}, new ColorDrawable(Color.argb(0xe0, 0x00, 0x80, 0xff)));
 
-        //noinspection deprecation
-        btn.setBackgroundDrawable(stateListDrawable);
+		btn.setBackgroundDrawable(stateListDrawable);
 		return btn;
 	}
 
@@ -139,14 +138,19 @@ public class LogView extends FrameLayout {
 
 				// Force scrollbars to be displayed.
 				TypedArray a = this.getContext().getTheme().obtainStyledAttributes(new int[0]);
+				try {
+					// initializeScrollbars(TypedArray)
+					Method initializeScrollbars = android.view.View.class.getDeclaredMethod("initializeScrollbars", TypedArray.class);
+					initializeScrollbars.invoke(this, a);
+				} catch (NoSuchMethodException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+				a.recycle();
 
-                try {
-                    // initializeScrollbars(TypedArray)
-                    Method initializeScrollbars = android.view.View.class.getDeclaredMethod("initializeScrollbars", TypedArray.class);
-                    initializeScrollbars.invoke(this, a);
-                } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
 			}
 
 			@Override
@@ -598,23 +602,23 @@ public class LogView extends FrameLayout {
 	int sourceFileIndex = -1;
 	boolean sourceViewMode = false;
 
-	private ArrayList<String> sourceFiles = new ArrayList<String>();
+	private ArrayList<MOMLUIContainer> containers = new ArrayList<MOMLUIContainer>();
 	private void showSource() {
 		sourceViewMode = true;
-		ArrayList<String> sourceFiles = new ArrayList<String>();
+		ArrayList<MOMLUIContainer> containers = new ArrayList<MOMLUIContainer>();
 
-		addSourceFile(momlView.getRootContainer(), sourceFiles);
+		addContainer(momlView.getRootContainer(), containers);
 		
-		if (sourceFiles.equals(this.sourceFiles)) {
+		if (containers.equals(this.containers)) {
 			sourceFileIndex--;
 			if (sourceFileIndex < 0)
-				sourceFileIndex = sourceFiles.size() - 1;
+				sourceFileIndex = containers.size() - 1;
 		} else {
-			this.sourceFiles = sourceFiles;
-			sourceFileIndex = sourceFiles.size() - 1;
+			this.containers = containers;
+			sourceFileIndex = containers.size() - 1;
 		}
 
-		if (sourceFiles.size() == 0) {
+		if (containers.size() == 0) {
 			String text = "\n\n\n No source file found.\n\n";
 			logView.setText(text);
 			logView.scrollTo(0, 0);
@@ -622,14 +626,19 @@ public class LogView extends FrameLayout {
 			return;
 		}
 
-		String sourceFile = sourceFiles.get(sourceFileIndex);
+		MOMLUIContainer container = containers.get(sourceFileIndex);
+		String sourceFile = container.getDocumentUrl();
 
-		String source = fileRead(sourceFile);
+		String source = container.getAttrValue("src");
+		
+		if (!source.startsWith("<"))
+			source = fileRead(sourceFile);
+		
 		source = source.replace("\t", "    ");
 		
 		String sourceFileList = "";
 		
-		sourceFileList = "\u25cf [" + (sourceFileIndex + 1) + "/" + sourceFiles.size() + "] "  + sourceFile;
+		sourceFileList = "\u25cf [" + (sourceFileIndex + 1) + "/" + containers.size() + "] "  + sourceFile;
 
 		String text = "\n\n\n" + sourceFileList + "\n\n";
 		text += addLineNumber(source);
@@ -669,22 +678,31 @@ public class LogView extends FrameLayout {
 		return result;
 	}
 
-	private void addSourceFile(MOMLUIFrameLayout window, ArrayList<String> sourceFiles) {
+	private void addContainer(MOMLUIFrameLayout window, ArrayList<MOMLUIContainer> containers) {
 		try {
 			if (window instanceof MOMLUIContainer) {
-
-				String fileName = ((MOMLUIContainer) window).getDocumentUrl();
-				if (sourceFiles.indexOf(fileName) < 0)
-					sourceFiles.add(fileName);
+				// add if not exist
+				MOMLUIContainer container = (MOMLUIContainer) window;
+				String documentUrl = container.getDocumentUrl();
+				int count = containers.size();
+				int i;
+				for (i = 0; i < count; ++i) {
+					if (containers.get(i).getDocumentUrl().equals(documentUrl))
+						break;
+				}
+				
+				if (i == count)
+					containers.add(container);
 			}
-			ArrayList childViews = window.childViews;
+			@SuppressWarnings("unchecked")
+			ArrayList<MOMLUIFrameLayout> childViews = (ArrayList<MOMLUIFrameLayout>) window.childViews;
 			int count = childViews.size();
 			int i;
 			for (i = 0; i < count; ++i) {
-				MOMLUIFrameLayout child = (MOMLUIFrameLayout)childViews.get(i);
+				MOMLUIFrameLayout child = childViews.get(i);
 
 				if (child.getVisibility() == View.VISIBLE) {
-					addSourceFile(child, sourceFiles);
+					addContainer(child, containers);
 				}
 			}
 		} catch (Exception e) {

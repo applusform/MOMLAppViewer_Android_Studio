@@ -115,6 +115,7 @@ public class MOMLAppActivity extends MOMLFragmentActivity {
 	private boolean hasCheckedApplicationLog;
 	private LogView logView;
 	private void initLog() {
+		hasCheckedApplicationLog = false;
 		if (logView != null) {
 			LogView.clearLogs();
 			checkApplicationLogFilter();
