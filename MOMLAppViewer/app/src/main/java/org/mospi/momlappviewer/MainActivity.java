@@ -215,20 +215,26 @@ public class MainActivity extends Activity {
 	
 	void openUrl(String url, boolean isUriSchemeOpen) {
 		String fullUrl = getFullUrl(url);
-		OpenData openData = checkAvaialable(fullUrl);
 		
-		if (openData.type.equals(OpenType.ERROR) || openData.type.equals(OpenType.UNKNOWN)) {
+		OpenData openData = new OpenData();
+		
+		if (!fullUrl.endsWith(".xml")) {
 			String applicationInfoUrl;
-			if (openData.url.endsWith("/"))
-				applicationInfoUrl = openData.url.concat("applicationInfo.xml");
+			if (fullUrl.endsWith("/"))
+				applicationInfoUrl = fullUrl.concat("applicationInfo.xml");
 			else
-				applicationInfoUrl = openData.url.concat("/applicationInfo.xml");
+				applicationInfoUrl = fullUrl.concat("/applicationInfo.xml");
 			
 			OpenData retryOpenData = checkAvaialable(applicationInfoUrl);
 			if (retryOpenData.type.equals(OpenType.APPLICATION)){
 				openData.url = retryOpenData.url;
 				openData.type = retryOpenData.type;
 			}
+		}
+
+		
+		if (openData.type.equals(OpenType.ERROR) || openData.type.equals(OpenType.UNKNOWN)) {
+			openData = checkAvaialable(fullUrl);
 		}
 		
 		if (openData.type.equals(OpenType.ERROR)) {
