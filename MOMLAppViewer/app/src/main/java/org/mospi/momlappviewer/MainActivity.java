@@ -283,8 +283,8 @@ public class MainActivity extends Activity {
 	}
 	
 	class OpenData {
-		public String url;
-		public String type;
+		public String url = "";
+		public String type = OpenType.UNKNOWN;
 	}
 	
 	OpenData checkAvaialable(String fullUrl) {
